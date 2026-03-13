@@ -3,132 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StyleCut - Sistema Integrado</title>
+    <title>Lacerda Club - Agendamento Profissional</title>
     <style>
         :root {
             --primary: #e0a800;
-            --bg: #121212;
-            --card: #1e1e1e;
+            --bg: #0a0a0a;
+            --card: #161616;
             --text: #ffffff;
-            --disabled: #444;
+            --muted: #888;
             --success: #2ecc71;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
 
-        /* --- NAVEGAÇÃO DE ABAS --- */
-        .tabs {
-            display: flex; background: #000; justify-content: center; padding: 10px;
-            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333;
+        /* --- HEADER & NAVEGAÇÃO --- */
+        header {
+            background: #000; padding: 15px 20px; display: flex; 
+            justify-content: space-between; align-items: center; border-bottom: 1px solid #222;
         }
-        .tab-btn {
-            background: none; border: none; color: #888; padding: 10px 20px;
-            cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s;
-        }
-        .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
+        .logo { font-weight: bold; font-size: 20px; color: var(--primary); letter-spacing: 1px; }
+        .admin-access { color: #333; cursor: pointer; font-size: 12px; transition: 0.3s; }
+        .admin-access:hover { color: var(--primary); }
 
-        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .container { max-width: 600px; margin: 30px auto; padding: 0 20px; }
         .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.4s; }
+        .view.active { display: block; animation: fadeIn 0.4s ease; }
 
-        /* --- ESTILOS COMUNS --- */
-        .card-panel { background: var(--card); padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { color: var(--primary); margin-bottom: 20px; text-align: center; }
-        .btn-main { 
-            width: 100%; padding: 15px; background: var(--primary); color: #000; 
-            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px;
-        }
-
-        /* --- ESTILO CLIENTE --- */
+        /* --- UI COMPONENTS --- */
+        .card-panel { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #222; }
+        h2 { font-size: 22px; margin-bottom: 20px; text-align: center; color: var(--primary); }
+        
+        label { display: block; margin: 15px 0 5px; font-size: 14px; font-weight: 600; color: var(--muted); }
         input, select { 
-            width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; 
-            border: 1px solid #333; background: #2a2a2a; color: white; 
+            width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; 
+            background: #222; color: white; outline: none; transition: 0.3s;
         }
-        .service-item {
-            display: flex; justify-content: space-between; padding: 12px;
-            border: 1px solid #333; border-radius: 8px; margin-bottom: 8px; cursor: pointer;
-        }
-        .service-item.selected { border-color: var(--primary); background: #252525; }
+        input:focus { border-color: var(--primary); }
 
+        /* Serviços Estilizados */
+        .services-grid { display: grid; gap: 10px; }
+        .service-item {
+            display: flex; justify-content: space-between; padding: 15px;
+            background: #222; border: 2px solid transparent; border-radius: 10px; cursor: pointer;
+        }
+        .service-item.selected { border-color: var(--primary); background: #2a220a; }
+        .price { color: var(--primary); font-weight: bold; }
+
+        /* Horários */
         .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .time-slot { 
-            padding: 10px; text-align: center; background: #2a2a2a; border-radius: 5px; 
-            cursor: pointer; font-size: 13px;
+            padding: 12px; text-align: center; background: #222; border-radius: 8px; 
+            cursor: pointer; font-size: 14px; transition: 0.2s;
         }
-        .time-slot.taken { background: var(--disabled); color: #777; cursor: not-allowed; text-decoration: line-through; }
         .time-slot.selected { background: var(--primary); color: #000; font-weight: bold; }
+        .time-slot.taken { background: #111; color: #444; cursor: not-allowed; text-decoration: line-through; }
 
-        /* --- ESTILO BARBEIRO --- */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th { text-align: left; color: #888; padding: 10px; border-bottom: 1px solid #333; }
-        td { padding: 15px 10px; border-bottom: 1px solid #222; }
-        .status-badge { background: var(--success); color: #000; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+        .btn-confirm { 
+            width: 100%; padding: 18px; background: var(--primary); color: #000; 
+            border: none; border-radius: 10px; font-weight: 800; cursor: pointer; 
+            margin-top: 30px; font-size: 16px; text-transform: uppercase;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Tabela Admin */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
+        th { text-align: left; padding: 12px; color: var(--muted); border-bottom: 1px solid #333; }
+        td { padding: 15px 12px; border-bottom: 1px solid #222; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <nav class="tabs">
-        <button class="tab-btn active" onclick="switchTab('cliente', this)">ÁREA DO CLIENTE</button>
-        <button class="tab-btn" onclick="switchTab('barbeiro', this)">PAINEL DO BARBEIRO</button>
-    </nav>
+    <header>
+        <div class="logo">STYLECUT BARBER</div>
+        <div class="admin-access" onclick="loginAdmin()">Acesso Restrito</div>
+    </header>
 
     <div class="container">
         
-        <section id="cliente" class="view active">
+        <section id="view-cliente" class="view active">
             <div class="card-panel">
-                <h2>Agende seu Horário</h2>
+                <h2>Agende seu Estilo</h2>
                 
-                <label>Nome Completo</label>
-                <input type="text" id="c_nome" placeholder="Ex: João Silva">
+                <label>Seus Dados</label>
+                <input type="text" id="c_nome" placeholder="Nome completo">
+                <input type="tel" id="c_tel" placeholder="WhatsApp (00) 00000-0000" style="margin-top:10px">
                 
-                <label>Telefone</label>
-                <input type="tel" id="c_tel" placeholder="(00) 00000-0000">
-
-                <label>Escolha os Serviços</label>
-                <div id="servicos-lista">
+                <label>Selecione o Serviço</label>
+                <div class="services-grid" id="servicos-lista">
                     <div class="service-item" onclick="selectService(this, 'Corte Máquina', 25)">
-                        <span>Corte Máquina</span> <span>R$ 25,00</span>
+                        <span>Corte Máquina</span> <span class="price">R$ 25,00</span>
                     </div>
                     <div class="service-item" onclick="selectService(this, 'Máquina e Tesoura', 30)">
-                        <span>Máquina e Tesoura</span> <span>R$ 30,00</span>
+                        <span>Máquina e Tesoura</span> <span class="price">R$ 30,00</span>
                     </div>
                     <div class="service-item" onclick="selectService(this, 'Corte Tesoura', 35)">
-                        <span>Corte Tesoura</span> <span>R$ 35,00</span>
+                        <span>Corte Tesoura</span> <span class="price">R$ 35,00</span>
                     </div>
                     <div class="service-item" onclick="selectService(this, 'Barba Completa', 20)">
-                        <span>Barba Completa</span> <span>R$ 20,00</span>
+                        <span>Barba Completa</span> <span class="price">R$ 20,00</span>
+                    </div>
+                    <div class="service-item" onclick="selectService(this, 'Designer de Barba', 10)">
+                        <span>Designer de Barba</span> <span class="price">R$ 10,00</span>
+                    </div>
+                    <div class="service-item" onclick="selectService(this, 'Limpeza Facial', 30)">
+                        <span>Limpeza Facial</span> <span class="price">R$ 30,00</span>
+                    </div>
+                    <div class="service-item" onclick="selectService(this, 'Sobrancelha', 5)">
+                        <span>Sobrancelha</span> <span class="price">R$ 5,00</span>
                     </div>
                 </div>
 
-                <label style="margin-top: 20px; display: block;">Horário Disponível</label>
+                <label>Data</label>
+                <input type="date" id="c_data">
+
+                <label>Horários Disponíveis</label>
                 <div class="time-grid" id="cliente-horarios">
                     <div class="time-slot" onclick="selectTime(this)">09:00</div>
-                    <div class="time-slot taken">10:00</div>
+                    <div class="time-slot" onclick="selectTime(this)">10:00</div>
                     <div class="time-slot" onclick="selectTime(this)">11:00</div>
                     <div class="time-slot" onclick="selectTime(this)">13:00</div>
                     <div class="time-slot" onclick="selectTime(this)">14:00</div>
-                    <div class="time-slot taken">15:00</div>
+                    <div class="time-slot" onclick="selectTime(this)">15:00</div>
                     <div class="time-slot" onclick="selectTime(this)">16:00</div>
                     <div class="time-slot" onclick="selectTime(this)">17:00</div>
                 </div>
 
-                <button class="btn-main" onclick="realizarAgendamento()">Confirmar Agendamento</button>
+                <button class="btn-confirm" onclick="confirmarAgendamento()">Reservar Agora</button>
             </div>
         </section>
 
-        <section id="barbeiro" class="view">
+        <section id="view-barbeiro" class="view">
             <div class="card-panel">
-                <h2>Agenda do Barbeiro</h2>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2>Gestão de Agenda</h2>
+                    <button onclick="logoutAdmin()" style="background:none; border:none; color:red; cursor:pointer;">Sair</button>
+                </div>
+
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                     <div style="flex:1; background:#000; padding:15px; border-radius:10px; text-align:center;">
-                        <small style="color:#888">Cortes hoje</small>
+                        <small style="color:var(--muted)">Atendimentos</small>
                         <h3 id="b_count">0</h3>
                     </div>
                     <div style="flex:1; background:#000; padding:15px; border-radius:10px; text-align:center;">
-                        <small style="color:#888">Total R$</small>
+                        <small style="color:var(--muted)">Receita</small>
                         <h3 id="b_total" style="color:var(--success)">R$ 0,00</h3>
                     </div>
                 </div>
@@ -136,16 +155,14 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Hora</th>
+                            <th>Data/Hora</th>
                             <th>Cliente</th>
                             <th>Serviço</th>
                             <th>Valor</th>
-                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody id="tabela-barbeiro">
-                        <tr><td colspan="5" style="text-align:center; color:#555; padding:20px;">Nenhum agendamento para agora.</td></tr>
-                    </tbody>
+                        </tbody>
                 </table>
             </div>
         </section>
@@ -153,14 +170,26 @@
     </div>
 
     <script>
-        let agendamentoAtual = { servico: '', valor: 0, hora: '' };
+        let agendamentoAtual = { servico: '', valor: 0, hora: '', data: '' };
         let listaGeral = [];
+        const SENHA_ADMIN = "1234"; // Defina sua senha aqui
 
-        function switchTab(id, btn) {
+        function loginAdmin() {
+            let senha = prompt("Digite a senha do barbeiro:");
+            if (senha === SENHA_ADMIN) {
+                switchView('view-barbeiro');
+            } else {
+                alert("Senha incorreta!");
+            }
+        }
+
+        function logoutAdmin() {
+            switchView('view-cliente');
+        }
+
+        function switchView(id) {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            btn.classList.add('active');
         }
 
         function selectService(el, nome, preco) {
@@ -171,65 +200,75 @@
         }
 
         function selectTime(el) {
+            if (el.classList.contains('taken')) return;
             document.querySelectorAll('.time-slot').forEach(i => i.classList.remove('selected'));
             el.classList.add('selected');
             agendamentoAtual.hora = el.innerText;
         }
 
-        function realizarAgendamento() {
+        function confirmarAgendamento() {
             const nome = document.getElementById('c_nome').value;
+            const data = document.getElementById('c_data').value;
             const tel = document.getElementById('c_tel').value;
 
-            if (!nome || !agendamentoAtual.servico || !agendamentoAtual.hora) {
-                alert("Preencha seu nome, escolha o serviço e o horário!");
+            if (!nome || !data || !agendamentoAtual.servico || !agendamentoAtual.hora) {
+                alert("Por favor, preencha todos os campos!");
                 return;
             }
 
-            // Criar o objeto de agendamento
-            const novoAgendamento = {
+            const novo = {
                 nome: nome,
                 tel: tel,
+                data: data,
+                hora: agendamentoAtual.hora,
                 servico: agendamentoAtual.servico,
-                valor: agendamentoAtual.valor,
-                hora: agendamentoAtual.hora
+                valor: agendamentoAtual.valor
             };
 
-            // Adicionar na nossa "lista do banco de dados" (array)
-            listaGeral.push(novoAgendamento);
+            listaGeral.push(novo);
+            marcarComoOcupado(agendamentoAtual.hora);
             atualizarPainelBarbeiro();
 
-            // Feedback pro cliente
-            alert("Sucesso! Horário reservado para " + novoAgendamento.hora);
-            
-            // Limpar campos
-            document.getElementById('c_nome').value = "";
-            document.getElementById('c_tel').value = "";
-            document.querySelectorAll('.service-item, .time-slot').forEach(i => i.classList.remove('selected'));
+            alert(`Perfeito, ${nome}! Seu horário foi reservado.`);
+            resetForm();
+        }
+
+        function marcarComoOcupado(hora) {
+            document.querySelectorAll('.time-slot').forEach(slot => {
+                if (slot.innerText === hora) {
+                    slot.classList.add('taken');
+                    slot.classList.remove('selected');
+                }
+            });
         }
 
         function atualizarPainelBarbeiro() {
             const tabela = document.getElementById('tabela-barbeiro');
-            const countEl = document.getElementById('b_count');
-            const totalEl = document.getElementById('b_total');
-            
             tabela.innerHTML = "";
-            let somaTotal = 0;
+            let total = 0;
 
-            listaGeral.sort((a, b) => a.hora.localeCompare(b.hora)).forEach(item => {
-                somaTotal += item.valor;
+            listaGeral.sort((a,b) => (a.data + a.hora).localeCompare(b.data + b.hora)).forEach(item => {
+                total += item.valor;
                 tabela.innerHTML += `
                     <tr>
-                        <td><strong>${item.hora}</strong></td>
-                        <td>${item.nome}<br><small style="color:#888">${item.tel}</small></td>
+                        <td><strong>${item.data}</strong><br>${item.hora}</td>
+                        <td>${item.nome}<br><small style="color:var(--muted)">${item.tel}</small></td>
                         <td>${item.servico}</td>
                         <td style="color:var(--success)">R$ ${item.valor},00</td>
-                        <td><span class="status-badge">AGENDADO</span></td>
                     </tr>
                 `;
             });
 
-            countEl.innerText = listaGeral.length;
-            totalEl.innerText = `R$ ${somaTotal},00`;
+            document.getElementById('b_count').innerText = listaGeral.length;
+            document.getElementById('b_total').innerText = `R$ ${total},00`;
+        }
+
+        function resetForm() {
+            document.getElementById('c_nome').value = "";
+            document.getElementById('c_tel').value = "";
+            document.getElementById('c_data').value = "";
+            document.querySelectorAll('.service-item').forEach(i => i.classList.remove('selected'));
+            agendamentoAtual = { servico: '', valor: 0, hora: '', data: '' };
         }
     </script>
 </body>
