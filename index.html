@@ -3,190 +3,234 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Agende seu Corte | Barbearia Lacerda Club</title>
+    <title>StyleCut - Sistema Integrado</title>
     <style>
         :root {
-            --primary: #e0a800; /* Dourado */
+            --primary: #e0a800;
             --bg: #121212;
             --card: #1e1e1e;
             --text: #ffffff;
             --disabled: #444;
+            --success: #2ecc71;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); }
 
-        body { background-color: var(--bg); color: var(--text); padding: 20px; display: flex; justify-content: center; }
+        /* --- NAVEGAÇÃO DE ABAS --- */
+        .tabs {
+            display: flex; background: #000; justify-content: center; padding: 10px;
+            position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #333;
+        }
+        .tab-btn {
+            background: none; border: none; color: #888; padding: 10px 20px;
+            cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s;
+        }
+        .tab-btn.active { color: var(--primary); border-bottom: 2px solid var(--primary); }
 
-        .container { max-width: 500px; width: 100%; background: var(--card); padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.4s; }
 
-        h2 { text-align: center; margin-bottom: 25px; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
+        /* --- ESTILOS COMUNS --- */
+        .card-panel { background: var(--card); padding: 25px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        h2 { color: var(--primary); margin-bottom: 20px; text-align: center; }
+        .btn-main { 
+            width: 100%; padding: 15px; background: var(--primary); color: #000; 
+            border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 20px;
+        }
 
-        .step { display: none; }
-        .step.active { display: block; animation: fadeIn 0.4s; }
-
-        label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; }
-        input { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #333; background: #2a2a2a; color: white; }
-
-        /* Estilo dos Serviços */
+        /* --- ESTILO CLIENTE --- */
+        input, select { 
+            width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; 
+            border: 1px solid #333; background: #2a2a2a; color: white; 
+        }
         .service-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 15px; border: 1px solid #333; border-radius: 10px; margin-bottom: 10px;
-            cursor: pointer; transition: 0.2s;
+            display: flex; justify-content: space-between; padding: 12px;
+            border: 1px solid #333; border-radius: 8px; margin-bottom: 8px; cursor: pointer;
         }
-        .service-item:hover { border-color: var(--primary); background: #252525; }
-        .service-item input { width: auto; margin-bottom: 0; accent-color: var(--primary); }
-        .price { color: var(--primary); font-weight: bold; }
+        .service-item.selected { border-color: var(--primary); background: #252525; }
 
-        /* Grade de Horários */
-        .time-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; }
-        .time-slot {
-            padding: 10px; text-align: center; background: #2a2a2a; border-radius: 5px; cursor: pointer; border: 1px solid transparent;
+        .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .time-slot { 
+            padding: 10px; text-align: center; background: #2a2a2a; border-radius: 5px; 
+            cursor: pointer; font-size: 13px;
         }
-        .time-slot:hover:not(.taken) { border-color: var(--primary); color: var(--primary); }
-        .time-slot.selected { background: var(--primary); color: #000; font-weight: bold; }
         .time-slot.taken { background: var(--disabled); color: #777; cursor: not-allowed; text-decoration: line-through; }
+        .time-slot.selected { background: var(--primary); color: #000; font-weight: bold; }
 
-        .btn-next {
-            width: 100%; padding: 15px; background: var(--primary); color: #000;
-            border: none; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer; margin-top: 20px;
-        }
+        /* --- ESTILO BARBEIRO --- */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th { text-align: left; color: #888; padding: 10px; border-bottom: 1px solid #333; }
+        td { padding: 15px 10px; border-bottom: 1px solid #222; }
+        .status-badge { background: var(--success); color: #000; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Agendamento</h2>
+    <nav class="tabs">
+        <button class="tab-btn active" onclick="switchTab('cliente', this)">ÁREA DO CLIENTE</button>
+        <button class="tab-btn" onclick="switchTab('barbeiro', this)">PAINEL DO BARBEIRO</button>
+    </nav>
 
-    <div class="step active" id="step1">
-        <label>Nome</label>
-        <input type="text" id="nome" placeholder="Seu nome">
-        <label>Sobrenome</label>
-        <input type="text" id="sobrenome" placeholder="Seu sobrenome">
-        <label>Telefone (WhatsApp)</label>
-        <input type="tel" id="tel" placeholder="(00) 00000-0000">
-        <button class="btn-next" onclick="nextStep(2)">Próximo: Escolher Corte</button>
-    </div>
-
-    <div class="step" id="step2">
-        <label>Selecione os serviços:</label>
-        <div class="service-item" onclick="toggleCheck(this)">
-            <span>Corte Máquina</span> <span class="price">R$ 25,00</span>
-            <input type="checkbox" name="servico" value="25">
-        </div>
-        <div class="service-item" onclick="toggleCheck(this)">
-            <span>Máquina e Tesoura</span> <span class="price">R$ 30,00</span>
-            <input type="checkbox" name="servico" value="30">
-        </div>
-        <div class="service-item" onclick="toggleCheck(this)">
-            <span>Corte a Tesoura</span> <span class="price">R$ 35,00</span>
-            <input type="checkbox" name="servico" value="35">
-        </div>
-        <div class="service-item" onclick="toggleCheck(this)">
-            <span>Barba Completa</span> <span class="price">R$ 20,00</span>
-            <input type="checkbox" name="servico" value="20">
-        </div>
-        <div class="service-item" onclick="toggleCheck(this)">
-            <span>Designer de Barba</span> <span class="price">R$ 10,00</span>
-            <input type="checkbox" name="servico" value="10">
-        </div>
+    <div class="container">
         
-        <p style="margin: 15px 0 10px; font-size: 14px; color: var(--primary);">Adicionais:</p>
-        <div class="service-item" onclick="toggleCheck(this)">
-            <span>Limpeza Facial</span> <span class="price">R$ 30,00</span>
-            <input type="checkbox" name="servico" value="30">
-        </div>
-        <div class="service-item" onclick="toggleCheck(this)">
-            <span>Sobrancelha</span> <span class="price">R$ 5,00</span>
-            <input type="checkbox" name="servico" value="5">
-        </div>
+        <section id="cliente" class="view active">
+            <div class="card-panel">
+                <h2>Agende seu Horário</h2>
+                
+                <label>Nome Completo</label>
+                <input type="text" id="c_nome" placeholder="Ex: João Silva">
+                
+                <label>Telefone</label>
+                <input type="tel" id="c_tel" placeholder="(00) 00000-0000">
 
-        <button class="btn-next" onclick="nextStep(3)">Próximo: Data e Hora</button>
-    </div>
+                <label>Escolha os Serviços</label>
+                <div id="servicos-lista">
+                    <div class="service-item" onclick="selectService(this, 'Corte Máquina', 25)">
+                        <span>Corte Máquina</span> <span>R$ 25,00</span>
+                    </div>
+                    <div class="service-item" onclick="selectService(this, 'Máquina e Tesoura', 30)">
+                        <span>Máquina e Tesoura</span> <span>R$ 30,00</span>
+                    </div>
+                    <div class="service-item" onclick="selectService(this, 'Corte Tesoura', 35)">
+                        <span>Corte Tesoura</span> <span>R$ 35,00</span>
+                    </div>
+                    <div class="service-item" onclick="selectService(this, 'Barba Completa', 20)">
+                        <span>Barba Completa</span> <span>R$ 20,00</span>
+                    </div>
+                </div>
 
-    <div class="step" id="step3">
-        <label>Escolha a Data</label>
-        <input type="date" id="data-escolhida" onchange="gerarHorarios()">
-        
-        <label>Horários Disponíveis</label>
-        <div class="time-grid" id="time-grid">
+                <label style="margin-top: 20px; display: block;">Horário Disponível</label>
+                <div class="time-grid" id="cliente-horarios">
+                    <div class="time-slot" onclick="selectTime(this)">09:00</div>
+                    <div class="time-slot taken">10:00</div>
+                    <div class="time-slot" onclick="selectTime(this)">11:00</div>
+                    <div class="time-slot" onclick="selectTime(this)">13:00</div>
+                    <div class="time-slot" onclick="selectTime(this)">14:00</div>
+                    <div class="time-slot taken">15:00</div>
+                    <div class="time-slot" onclick="selectTime(this)">16:00</div>
+                    <div class="time-slot" onclick="selectTime(this)">17:00</div>
+                </div>
+
+                <button class="btn-main" onclick="realizarAgendamento()">Confirmar Agendamento</button>
             </div>
+        </section>
 
-        <button class="btn-next" id="finalizar" onclick="finalizarAgendamento()">Finalizar Agendamento</button>
+        <section id="barbeiro" class="view">
+            <div class="card-panel">
+                <h2>Agenda do Barbeiro</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                    <div style="flex:1; background:#000; padding:15px; border-radius:10px; text-align:center;">
+                        <small style="color:#888">Cortes hoje</small>
+                        <h3 id="b_count">0</h3>
+                    </div>
+                    <div style="flex:1; background:#000; padding:15px; border-radius:10px; text-align:center;">
+                        <small style="color:#888">Total R$</small>
+                        <h3 id="b_total" style="color:var(--success)">R$ 0,00</h3>
+                    </div>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Hora</th>
+                            <th>Cliente</th>
+                            <th>Serviço</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-barbeiro">
+                        <tr><td colspan="5" style="text-align:center; color:#555; padding:20px;">Nenhum agendamento para agora.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
     </div>
 
-    <div class="step" id="step4">
-        <div style="text-align: center; padding: 20px;">
-            <h3 style="color: var(--primary); font-size: 24px;">✓ Reservado!</h3>
-            <p style="margin-top: 15px;" id="resumo-final"></p>
-            <button class="btn-next" onclick="location.reload()">Novo Agendamento</button>
-        </div>
-    </div>
-</div>
+    <script>
+        let agendamentoAtual = { servico: '', valor: 0, hora: '' };
+        let listaGeral = [];
 
-<script>
-    let dadosAgendamento = {};
-
-    function nextStep(step) {
-        // Validação simples
-        if (step === 2 && document.getElementById('nome').value === "") {
-            alert("Por favor, preencha seu nome."); return;
+        function switchTab(id, btn) {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
         }
 
-        document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-        document.getElementById('step' + step).classList.add('active');
-    }
+        function selectService(el, nome, preco) {
+            document.querySelectorAll('.service-item').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            agendamentoAtual.servico = nome;
+            agendamentoAtual.valor = preco;
+        }
 
-    function toggleCheck(element) {
-        const checkbox = element.querySelector('input');
-        checkbox.checked = !checkbox.checked;
-        element.style.borderColor = checkbox.checked ? 'var(--primary)' : '#333';
-    }
+        function selectTime(el) {
+            document.querySelectorAll('.time-slot').forEach(i => i.classList.remove('selected'));
+            el.classList.add('selected');
+            agendamentoAtual.hora = el.innerText;
+        }
 
-    function gerarHorarios() {
-        const grid = document.getElementById('time-grid');
-        grid.innerHTML = "";
-        const horarios = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00", "18:00"];
-        
-        // Simulação de horários já ocupados (em um sistema real isso viria do banco de dados)
-        const ocupados = ["10:00", "15:00"];
+        function realizarAgendamento() {
+            const nome = document.getElementById('c_nome').value;
+            const tel = document.getElementById('c_tel').value;
 
-        horarios.forEach(hora => {
-            const div = document.createElement('div');
-            div.classList.add('time-slot');
-            div.innerText = hora;
-            
-            if (ocupados.includes(hora)) {
-                div.classList.add('taken');
-            } else {
-                div.onclick = function() {
-                    document.querySelectorAll('.time-slot').forEach(s => s.classList.remove('selected'));
-                    div.classList.add('selected');
-                    dadosAgendamento.hora = hora;
-                };
+            if (!nome || !agendamentoAtual.servico || !agendamentoAtual.hora) {
+                alert("Preencha seu nome, escolha o serviço e o horário!");
+                return;
             }
-            grid.appendChild(div);
-        });
-    }
 
-    function finalizarAgendamento() {
-        if (!dadosAgendamento.hora) {
-            alert("Escolha um horário!"); return;
+            // Criar o objeto de agendamento
+            const novoAgendamento = {
+                nome: nome,
+                tel: tel,
+                servico: agendamentoAtual.servico,
+                valor: agendamentoAtual.valor,
+                hora: agendamentoAtual.hora
+            };
+
+            // Adicionar na nossa "lista do banco de dados" (array)
+            listaGeral.push(novoAgendamento);
+            atualizarPainelBarbeiro();
+
+            // Feedback pro cliente
+            alert("Sucesso! Horário reservado para " + novoAgendamento.hora);
+            
+            // Limpar campos
+            document.getElementById('c_nome').value = "";
+            document.getElementById('c_tel').value = "";
+            document.querySelectorAll('.service-item, .time-slot').forEach(i => i.classList.remove('selected'));
         }
 
-        const nome = document.getElementById('nome').value;
-        const data = document.getElementById('data-escolhida').value;
-        
-        document.getElementById('resumo-final').innerHTML = `
-            Obrigado, <strong>${nome}</strong>!<br>
-            Seu horário de <strong>${dadosAgendamento.hora}h</strong> no dia <strong>${data}</strong> foi marcado com sucesso.<br><br>
-            Aguardamos você!
-        `;
-        
-        nextStep(4);
-    }
-</script>
+        function atualizarPainelBarbeiro() {
+            const tabela = document.getElementById('tabela-barbeiro');
+            const countEl = document.getElementById('b_count');
+            const totalEl = document.getElementById('b_total');
+            
+            tabela.innerHTML = "";
+            let somaTotal = 0;
 
+            listaGeral.sort((a, b) => a.hora.localeCompare(b.hora)).forEach(item => {
+                somaTotal += item.valor;
+                tabela.innerHTML += `
+                    <tr>
+                        <td><strong>${item.hora}</strong></td>
+                        <td>${item.nome}<br><small style="color:#888">${item.tel}</small></td>
+                        <td>${item.servico}</td>
+                        <td style="color:var(--success)">R$ ${item.valor},00</td>
+                        <td><span class="status-badge">AGENDADO</span></td>
+                    </tr>
+                `;
+            });
+
+            countEl.innerText = listaGeral.length;
+            totalEl.innerText = `R$ ${somaTotal},00`;
+        }
+    </script>
 </body>
 </html>
