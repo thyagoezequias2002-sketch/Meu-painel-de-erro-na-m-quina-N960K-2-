@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lacerda Club - Agendamento Profissional</title>
+    <title>StyleCut - Barber Booking</title>
     <style>
         :root {
             --primary: #e0a800;
@@ -17,34 +17,32 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
         body { background-color: var(--bg); color: var(--text); line-height: 1.6; }
 
-        /* --- HEADER & NAVEGAÇÃO --- */
+        /* HEADER */
         header {
             background: #000; padding: 15px 20px; display: flex; 
             justify-content: space-between; align-items: center; border-bottom: 1px solid #222;
         }
         .logo { font-weight: bold; font-size: 20px; color: var(--primary); letter-spacing: 1px; }
-        .admin-access { color: #333; cursor: pointer; font-size: 12px; transition: 0.3s; }
-        .admin-access:hover { color: var(--primary); }
+        .admin-access { color: #222; cursor: pointer; font-size: 11px; } /* Quase invisível para clientes */
 
         .container { max-width: 600px; margin: 30px auto; padding: 0 20px; }
         .view { display: none; }
         .view.active { display: block; animation: fadeIn 0.4s ease; }
 
-        /* --- UI COMPONENTS --- */
+        /* UI */
         .card-panel { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid #222; }
         h2 { font-size: 22px; margin-bottom: 20px; text-align: center; color: var(--primary); }
         
         label { display: block; margin: 15px 0 5px; font-size: 14px; font-weight: 600; color: var(--muted); }
-        input, select { 
+        input { 
             width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #333; 
-            background: #222; color: white; outline: none; transition: 0.3s;
+            background: #222; color: white; margin-bottom: 10px;
         }
-        input:focus { border-color: var(--primary); }
 
-        /* Serviços Estilizados */
-        .services-grid { display: grid; gap: 10px; }
+        /* Serviços */
+        .services-grid { display: grid; gap: 8px; }
         .service-item {
-            display: flex; justify-content: space-between; padding: 15px;
+            display: flex; justify-content: space-between; padding: 12px;
             background: #222; border: 2px solid transparent; border-radius: 10px; cursor: pointer;
         }
         .service-item.selected { border-color: var(--primary); background: #2a220a; }
@@ -54,21 +52,21 @@
         .time-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
         .time-slot { 
             padding: 12px; text-align: center; background: #222; border-radius: 8px; 
-            cursor: pointer; font-size: 14px; transition: 0.2s;
+            cursor: pointer; font-size: 14px;
         }
         .time-slot.selected { background: var(--primary); color: #000; font-weight: bold; }
         .time-slot.taken { background: #111; color: #444; cursor: not-allowed; text-decoration: line-through; }
 
         .btn-confirm { 
-            width: 100%; padding: 18px; background: var(--primary); color: #000; 
+            width: 100%; padding: 18px; background: var(--success); color: #000; 
             border: none; border-radius: 10px; font-weight: 800; cursor: pointer; 
-            margin-top: 30px; font-size: 16px; text-transform: uppercase;
+            margin-top: 30px; font-size: 16px;
         }
 
-        /* Tabela Admin */
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 14px; }
-        th { text-align: left; padding: 12px; color: var(--muted); border-bottom: 1px solid #333; }
-        td { padding: 15px 12px; border-bottom: 1px solid #222; }
+        /* Tabela Barbeiro */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        th { text-align: left; padding: 10px; color: var(--muted); border-bottom: 1px solid #333; }
+        td { padding: 12px 10px; border-bottom: 1px solid #222; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -77,21 +75,20 @@
 
     <header>
         <div class="logo">STYLECUT BARBER</div>
-        <div class="admin-access" onclick="loginAdmin()">Acesso Restrito</div>
+        <div class="admin-access" onclick="loginAdmin()">ACESSO BARBEIRO</div>
     </header>
 
     <div class="container">
         
         <section id="view-cliente" class="view active">
             <div class="card-panel">
-                <h2>Agende seu Estilo</h2>
+                <h2>Agende seu Horário</h2>
                 
-                <label>Seus Dados</label>
-                <input type="text" id="c_nome" placeholder="Nome completo">
-                <input type="tel" id="c_tel" placeholder="WhatsApp (00) 00000-0000" style="margin-top:10px">
+                <input type="text" id="c_nome" placeholder="Seu Nome e Sobrenome">
+                <input type="tel" id="c_tel" placeholder="Seu WhatsApp">
                 
-                <label>Selecione o Serviço</label>
-                <div class="services-grid" id="servicos-lista">
+                <label>Escolha o Serviço</label>
+                <div class="services-grid">
                     <div class="service-item" onclick="selectService(this, 'Corte Máquina', 25)">
                         <span>Corte Máquina</span> <span class="price">R$ 25,00</span>
                     </div>
@@ -118,7 +115,7 @@
                 <label>Data</label>
                 <input type="date" id="c_data">
 
-                <label>Horários Disponíveis</label>
+                <label>Horário</label>
                 <div class="time-grid" id="cliente-horarios">
                     <div class="time-slot" onclick="selectTime(this)">09:00</div>
                     <div class="time-slot" onclick="selectTime(this)">10:00</div>
@@ -130,24 +127,24 @@
                     <div class="time-slot" onclick="selectTime(this)">17:00</div>
                 </div>
 
-                <button class="btn-confirm" onclick="confirmarAgendamento()">Reservar Agora</button>
+                <button class="btn-confirm" onclick="confirmarAgendamento()">Confirmar via WhatsApp</button>
             </div>
         </section>
 
         <section id="view-barbeiro" class="view">
             <div class="card-panel">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <h2>Gestão de Agenda</h2>
-                    <button onclick="logoutAdmin()" style="background:none; border:none; color:red; cursor:pointer;">Sair</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                    <h2 style="margin:0">Agenda Geral</h2>
+                    <button onclick="logoutAdmin()" style="color:red; background:none; border:none; cursor:pointer;">Sair</button>
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-bottom: 20px;">
                     <div style="flex:1; background:#000; padding:15px; border-radius:10px; text-align:center;">
-                        <small style="color:var(--muted)">Atendimentos</small>
+                        <small>Cortes</small>
                         <h3 id="b_count">0</h3>
                     </div>
                     <div style="flex:1; background:#000; padding:15px; border-radius:10px; text-align:center;">
-                        <small style="color:var(--muted)">Receita</small>
+                        <small>Total</small>
                         <h3 id="b_total" style="color:var(--success)">R$ 0,00</h3>
                     </div>
                 </div>
@@ -161,35 +158,28 @@
                             <th>Valor</th>
                         </tr>
                     </thead>
-                    <tbody id="tabela-barbeiro">
-                        </tbody>
+                    <tbody id="tabela-barbeiro"></tbody>
                 </table>
             </div>
         </section>
-
     </div>
 
     <script>
-        let agendamentoAtual = { servico: '', valor: 0, hora: '', data: '' };
+        const SEU_WHATSAPP = "55211111111111 "; // COLOQUE SEU NÚMERO AQUI (Com 55 e DDD)
+        const SENHA_ADMIN = "1234";
+        let agendamentoAtual = { servico: '', valor: 0, hora: '' };
         let listaGeral = [];
-        const SENHA_ADMIN = "1234"; // Defina sua senha aqui
 
         function loginAdmin() {
-            let senha = prompt("Digite a senha do barbeiro:");
-            if (senha === SENHA_ADMIN) {
-                switchView('view-barbeiro');
-            } else {
-                alert("Senha incorreta!");
+            if (prompt("Senha do Barbeiro:") === SENHA_ADMIN) {
+                document.getElementById('view-cliente').classList.remove('active');
+                document.getElementById('view-barbeiro').classList.add('active');
             }
         }
 
         function logoutAdmin() {
-            switchView('view-cliente');
-        }
-
-        function switchView(id) {
-            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
+            document.getElementById('view-barbeiro').classList.remove('active');
+            document.getElementById('view-cliente').classList.add('active');
         }
 
         function selectService(el, nome, preco) {
@@ -212,63 +202,35 @@
             const tel = document.getElementById('c_tel').value;
 
             if (!nome || !data || !agendamentoAtual.servico || !agendamentoAtual.hora) {
-                alert("Por favor, preencha todos os campos!");
-                return;
+                alert("Por favor, preencha tudo!"); return;
             }
 
-            const novo = {
-                nome: nome,
-                tel: tel,
-                data: data,
-                hora: agendamentoAtual.hora,
-                servico: agendamentoAtual.servico,
-                valor: agendamentoAtual.valor
-            };
-
+            const novo = { nome, tel, data, hora: agendamentoAtual.hora, servico: agendamentoAtual.servico, valor: agendamentoAtual.valor };
             listaGeral.push(novo);
-            marcarComoOcupado(agendamentoAtual.hora);
-            atualizarPainelBarbeiro();
+            
+            // Marcar como ocupado na tela atual
+            document.querySelectorAll('.time-slot').forEach(s => { if(s.innerText === novo.hora) s.classList.add('taken'); });
 
-            alert(`Perfeito, ${nome}! Seu horário foi reservado.`);
-            resetForm();
+            // Atualiza Painel Barbeiro
+            atualizarBarbeiro();
+
+            // GERAR MENSAGEM WHATSAPP
+            const msg = `Olá! Gostaria de confirmar um agendamento:%0A%0A*Cliente:* ${nome}%0A*Serviço:* ${novo.servico}%0A*Data:* ${data}%0A*Horário:* ${novo.hora}h%0A*Valor:* R$ ${novo.valor},00`;
+            window.open(`https://wa.me/${SEU_WHATSAPP}?text=${msg}`, '_blank');
+            
+            alert("Agendamento registrado! Enviando para o WhatsApp...");
         }
 
-        function marcarComoOcupado(hora) {
-            document.querySelectorAll('.time-slot').forEach(slot => {
-                if (slot.innerText === hora) {
-                    slot.classList.add('taken');
-                    slot.classList.remove('selected');
-                }
-            });
-        }
-
-        function atualizarPainelBarbeiro() {
-            const tabela = document.getElementById('tabela-barbeiro');
-            tabela.innerHTML = "";
+        function atualizarBarbeiro() {
+            const tb = document.getElementById('tabela-barbeiro');
+            tb.innerHTML = "";
             let total = 0;
-
-            listaGeral.sort((a,b) => (a.data + a.hora).localeCompare(b.data + b.hora)).forEach(item => {
-                total += item.valor;
-                tabela.innerHTML += `
-                    <tr>
-                        <td><strong>${item.data}</strong><br>${item.hora}</td>
-                        <td>${item.nome}<br><small style="color:var(--muted)">${item.tel}</small></td>
-                        <td>${item.servico}</td>
-                        <td style="color:var(--success)">R$ ${item.valor},00</td>
-                    </tr>
-                `;
+            listaGeral.forEach(i => {
+                total += i.valor;
+                tb.innerHTML += `<tr><td>${i.data}<br>${i.hora}h</td><td>${i.nome}</td><td>${i.servico}</td><td style="color:var(--success)">R$ ${i.valor}</td></tr>`;
             });
-
             document.getElementById('b_count').innerText = listaGeral.length;
             document.getElementById('b_total').innerText = `R$ ${total},00`;
-        }
-
-        function resetForm() {
-            document.getElementById('c_nome').value = "";
-            document.getElementById('c_tel').value = "";
-            document.getElementById('c_data').value = "";
-            document.querySelectorAll('.service-item').forEach(i => i.classList.remove('selected'));
-            agendamentoAtual = { servico: '', valor: 0, hora: '', data: '' };
         }
     </script>
 </body>
